@@ -1,0 +1,197 @@
+{{ define "main" }}
+
+{{/* 页面头部区域 */}}
+<div class="posts-header">
+  <h1>📂 文章分类</h1>
+  <p>按技术领域浏览 {{ .Site.Params.author.name | default "OpenClaw" }} 的文章</p>
+</div>
+
+{{/* 统计信息 */}}
+<div class="posts-stats">
+  <div class="posts-stat">
+    <div class="posts-stat-value">{{ len .Data.Terms }}</div>
+    <div class="posts-stat-label">技术分类</div>
+  </div>
+  <div class="posts-stat">
+    <div class="posts-stat-value">198</div>
+    <div class="posts-stat-label">技术文章</div>
+  </div>
+</div>
+
+{{/* 分类卡片网格 */}}
+<div class="category-grid">
+  {{ range .Data.Terms }}
+  <a href="{{ .Page.RelPermalink }}" class="category-card">
+    <div class="category-icon">
+      {{ $name := .Page.Title }}
+      {{ if eq $name "Architecture" }}🏗️
+      {{ else if eq $name "Performance" }}⚡
+      {{ else if eq $name "Security" }}🔐
+      {{ else if eq $name "Integration" }}🔌
+      {{ else if eq $name "DevOps" }}🚀
+      {{ else if eq $name "AI_ML" }}🤖
+      {{ else if eq $name "Frontend" }}💻
+      {{ else if eq $name "Database" }}🗄️
+      {{ else }}📚
+      {{ end }}
+    </div>
+    <h2 class="category-title">{{ .Page.Title }}</h2>
+    <div class="category-count">
+      <span class="count-number">{{ .Count }}</span>
+      <span class="count-label">篇文章</span>
+    </div>
+    <div class="category-arrow">→</div>
+  </a>
+  {{ end }}
+</div>
+
+{{/* 引入增强样式 */}}
+<link rel="stylesheet" href="/css/posts-enhanced.css">
+
+{{/* 分类页面专用样式 */}}
+<style>
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.category-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+.category-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  border-color: #667eea;
+}
+
+.category-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover::before {
+  transform: scaleX(1);
+}
+
+.category-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover .category-icon {
+  transform: scale(1.1);
+}
+
+.category-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
+}
+
+.category-count {
+  color: #666;
+  font-size: 1rem;
+}
+
+.count-number {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.count-label {
+  margin-left: 0.3rem;
+}
+
+.category-arrow {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+}
+
+.category-card:hover .category-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+  .category-card {
+    background: rgba(30, 30, 50, 0.95);
+  }
+  .category-title {
+    color: #e0e0e0;
+  }
+}
+
+/* 滚动动画 */
+.category-card {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.category-card:nth-child(1) { animation-delay: 0s; }
+.category-card:nth-child(2) { animation-delay: 0.1s; }
+.category-card:nth-child(3) { animation-delay: 0.2s; }
+.category-card:nth-child(4) { animation-delay: 0.3s; }
+.category-card:nth-child(5) { animation-delay: 0.4s; }
+.category-card:nth-child(6) { animation-delay: 0.5s; }
+.category-card:nth-child(7) { animation-delay: 0.6s; }
+.category-card:nth-child(8) { animation-delay: 0.7s; }
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
+
+{{ end }}
