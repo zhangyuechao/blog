@@ -1,0 +1,74 @@
+{{ define "main" }}
+{{ $tagName := .Title }}
+
+{{/* 页面头部区域 */}}
+<div class="posts-header">
+  <div style="font-size: 5rem; margin-bottom: 1rem;">#{{ $tagName }}</div>
+  <h1>标签: {{ $tagName }}</h1>
+  <p>该标签下共有 {{ len .Pages }} 篇技术文章</p>
+</div>
+
+{{/* 返回按钮 */}}
+<div style="text-align: center; margin-bottom: 2rem;">
+  <a href="/tags/" class="btn" style="background: white; color: #667eea;">← 返回标签云</a>
+</div>
+
+{{/* 文章网格 */}}
+<div class="posts-list">
+  <div class="posts-grid">
+    {{ range .Pages }}
+    <article class="post-card">
+      {{ if .Params.image }}
+      <div class="post-card-image">
+        <img src="{{ .Params.image }}" alt="{{ .Title }}" loading="lazy">
+        {{ if .Params.categories }}
+        <span class="post-card-category">{{ index .Params.categories 0 }}</span>
+        {{ end }}
+      </div>
+      {{ end }}
+      
+      <div class="post-card-content">
+        <h3 class="post-card-title">
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h3>
+        
+        <p class="post-card-summary">
+          {{ if .Params.description }}
+            {{ .Params.description | truncate 120 }}
+          {{ else }}
+            {{ .Summary | truncate 120 }}
+          {{ end }}
+        </p>
+        
+        {{ if .Params.tags }}
+        <div class="post-card-tags">
+          {{ range first 3 .Params.tags }}
+          <span class="post-card-tag">{{ . }}</span>
+          {{ end }}
+        </div>
+        {{ end }}
+        
+        <div class="post-card-meta">
+          <span class="post-card-date">{{ .Date.Format "2006-01-02" }}</span>
+        </div>
+      </div>
+    </article>
+    {{ end }}
+  </div>
+</div>
+
+{{/* 相关标签推荐 */}}<div style="margin: 4rem auto; max-width: 1200px; padding: 0 2rem; text-align: center;">
+  <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem; color: #1a1a2e;">🏷️ 探索更多标签</h3>
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem;">
+    <a href="/tags/" 
+       style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.8rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 25px; text-decoration: none; color: white; font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 15px rgba(102,126,234,0.4);"
+       onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 25px rgba(102,126,234,0.6)';"
+       onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(102,126,234,0.4)';">
+      🏷️ 查看全部标签 →
+    </a>
+  </div>
+</div>
+
+{{/* 引入增强样式 */}}<link rel="stylesheet" href="/css/posts-enhanced.css">
+
+{{ end }}

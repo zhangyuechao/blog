@@ -1,0 +1,226 @@
+{{ define "main" }}
+
+{{/* 页面头部区域 */}}
+<div class="posts-header">
+  <div style="font-size: 5rem; margin-bottom: 1rem;">🏷️</div>
+  <h1>标签云</h1>
+  <p>通过标签快速找到你感兴趣的技术话题</p>
+</div>
+
+{{/* 统计信息 */}}
+<div class="posts-stats">
+  <div class="posts-stat">
+    <div class="posts-stat-value">{{ len .Data.Terms }}</div>
+    <div class="posts-stat-label">技术标签</div>
+  </div>
+  <div class="posts-stat">
+    <div class="posts-stat-value">198</div>
+    <div class="posts-stat-label">技术文章</div>
+  </div>
+</div>
+
+{{/* 标签云 */}}
+<div class="tags-cloud">
+  {{ range .Data.Terms }}
+  <a href="{{ .Page.RelPermalink }}" 
+     class="tag-item"
+     style="font-size: {{ add 0.9 (mul 1.5 (div (float .Count) 40.0)) }}rem;"
+     data-count="{{ .Count }}">
+    <span class="tag-name">{{ .Page.Title }}</span>
+    <span class="tag-count">{{ .Count }}</span>
+  </a>
+  {{ end }}</div>
+
+{{/* 热门标签展示 */}}<div style="margin: 4rem auto; max-width: 1200px; padding: 0 2rem;">
+  <h2 style="text-align: center; font-size: 2rem; margin-bottom: 2rem; color: #1a1a2e;">🔥 热门标签</h2>
+  <div class="popular-tags">
+    {{ range first 10 (sort .Data.Terms ".Count" "desc") }}
+    <a href="{{ .Page.RelPermalink }}" class="popular-tag">
+      <span class="popular-tag-name">{{ .Page.Title }}</span>
+      <span class="popular-tag-count">{{ .Count }} 篇</span>
+    </a>
+    {{ end }}
+  </div>
+</div>
+
+{{/* 引入增强样式 */}}<link rel="stylesheet" href="/css/posts-enhanced.css">
+
+{{/* 标签页专用样式 */}}<style>
+.tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.tags-cloud::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+}
+
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  border-radius: 30px;
+  text-decoration: none;
+  color: #667eea;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.tag-item::before {
+  content: '# ';
+  color: #667eea;
+  font-weight: 800;
+}
+
+.tag-item:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateY(-5px) scale(1.1);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.tag-item:hover::before {
+  color: rgba(255,255,255,0.8);
+}
+
+.tag-count {
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+  padding: 0.2rem 0.6rem;
+  border-radius: 15px;
+  font-size: 0.7em;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+
+.tag-item:hover .tag-count {
+  background: rgba(255,255,255,0.3);
+  color: white;
+}
+
+/* 根据数量调整颜色深度 */
+.tag-item[data-count="1"] { opacity: 0.6; }
+.tag-item[data-count="2"] { opacity: 0.7; }
+.tag-item[data-count="3"] { opacity: 0.8; }
+.tag-item[data-count="4"] { opacity: 0.9; }
+
+/* 热门标签 */
+.popular-tags {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.popular-tag {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-radius: 12px;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.popular-tag:hover {
+  border-color: #667eea;
+  transform: translateX(10px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.popular-tag-name {
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.popular-tag-count {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* 动画效果 */
+.tag-item {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: popIn 0.5s ease forwards;
+}
+
+.tag-item:nth-child(1) { animation-delay: 0s; }
+.tag-item:nth-child(2) { animation-delay: 0.05s; }
+.tag-item:nth-child(3) { animation-delay: 0.1s; }
+.tag-item:nth-child(4) { animation-delay: 0.15s; }
+.tag-item:nth-child(5) { animation-delay: 0.2s; }
+.tag-item:nth-child(6) { animation-delay: 0.25s; }
+.tag-item:nth-child(7) { animation-delay: 0.3s; }
+.tag-item:nth-child(8) { animation-delay: 0.35s; }
+.tag-item:nth-child(9) { animation-delay: 0.4s; }
+.tag-item:nth-child(10) { animation-delay: 0.45s; }
+
+@keyframes popIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .tags-cloud {
+    padding: 2rem 1rem;
+  }
+  
+  .popular-tags {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+  .tags-cloud {
+    background: rgba(30, 30, 50, 0.95);
+  }
+  
+  .tag-item {
+    background: rgba(50, 50, 70, 0.8);
+    color: #a8b2ff;
+  }
+  
+  .popular-tag {
+    background: rgba(40, 40, 60, 0.95);
+  }
+  
+  .popular-tag-name {
+    color: #e0e0e0;
+  }
+}
+</style>
+
+{{ end }}
