@@ -2,8 +2,7 @@
 
 {{/* 页面头部区域 */}}
 <div class="posts-header">
-  <div style="font-size: 5rem; margin-bottom: 1rem;">🏷️</div>
-  <h1>标签云</h1>
+  <h1>🏷️ 标签云</h1>
   <p>通过标签快速找到你感兴趣的技术话题</p>
 </div>
 
@@ -19,206 +18,166 @@
   </div>
 </div>
 
-{{/* 标签云 */}}
-<div class="tags-cloud">
+{{/* 标签卡片网格 */}}
+<div class="category-grid">
   {{ range .Data.Terms }}
-  <a href="{{ .Page.RelPermalink }}" 
-     class="tag-item"
-     style="font-size: {{ add 0.9 (mul 1.5 (div (float .Count) 40.0)) }}rem;"
-     data-count="{{ .Count }}">
-    <span class="tag-name">{{ .Page.Title }}</span>
-    <span class="tag-count">{{ .Count }}</span>
+  <a href="{{ .Page.RelPermalink }}" class="category-card">
+    <div class="category-icon">🏷️</div>
+    <h2 class="category-title">{{ .Page.Title }}</h2>
+    <div class="category-count">
+      <span class="count-number">{{ .Count }}</span>
+      <span class="count-label">篇文章</span>
+    </div>
+    <div class="category-arrow">→</div>
   </a>
-  {{ end }}</div>
-
-{{/* 热门标签展示 */}}<div style="margin: 4rem auto; max-width: 1200px; padding: 0 2rem;">
-  <h2 style="text-align: center; font-size: 2rem; margin-bottom: 2rem; color: #1a1a2e;">🔥 热门标签</h2>
-  <div class="popular-tags">
-    {{ range first 10 (sort .Data.Terms ".Count" "desc") }}
-    <a href="{{ .Page.RelPermalink }}" class="popular-tag">
-      <span class="popular-tag-name">{{ .Page.Title }}</span>
-      <span class="popular-tag-count">{{ .Count }} 篇</span>
-    </a>
-    {{ end }}
-  </div>
+  {{ end }}
 </div>
 
-{{/* 引入增强样式 */}}<link rel="stylesheet" href="/css/posts-enhanced.css">
+{{/* 引入增强样式 */}}
+<link rel="stylesheet" href="/css/posts-enhanced.css">
 
-{{/* 标签页专用样式 */}}<style>
-.tags-cloud {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
+{{/* 标签页面专用样式 */}}
+<style>
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
   max-width: 1200px;
-  margin: 3rem auto;
-  padding: 3rem 2rem;
-  background: white;
-  border-radius: 30px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-  position: relative;
-  overflow: hidden;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
-.tags-cloud::before {
+.category-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+.category-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  border-color: #667eea;
+}
+
+.category-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
-.tag-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1.5rem;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
-  border-radius: 30px;
-  text-decoration: none;
-  color: #667eea;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: 2px solid transparent;
-  position: relative;
-  overflow: hidden;
+.category-card:hover::before {
+  transform: scaleX(1);
 }
 
-.tag-item::before {
-  content: '# ';
-  color: #667eea;
-  font-weight: 800;
+.category-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
 }
 
-.tag-item:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  transform: translateY(-5px) scale(1.1);
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+.category-card:hover .category-icon {
+  transform: scale(1.1);
 }
 
-.tag-item:hover::before {
-  color: rgba(255,255,255,0.8);
-}
-
-.tag-count {
-  background: rgba(102, 126, 234, 0.2);
-  color: #667eea;
-  padding: 0.2rem 0.6rem;
-  border-radius: 15px;
-  font-size: 0.7em;
+.category-title {
+  font-size: 1.5rem;
   font-weight: 700;
-  transition: all 0.3s;
-}
-
-.tag-item:hover .tag-count {
-  background: rgba(255,255,255,0.3);
-  color: white;
-}
-
-/* 根据数量调整颜色深度 */
-.tag-item[data-count="1"] { opacity: 0.6; }
-.tag-item[data-count="2"] { opacity: 0.7; }
-.tag-item[data-count="3"] { opacity: 0.8; }
-.tag-item[data-count="4"] { opacity: 0.9; }
-
-/* 热门标签 */
-.popular-tags {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.popular-tag {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background: white;
-  border-radius: 12px;
-  text-decoration: none;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  transition: all 0.3s;
-  border: 2px solid transparent;
-}
-
-.popular-tag:hover {
-  border-color: #667eea;
-  transform: translateX(10px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
-}
-
-.popular-tag-name {
-  font-weight: 600;
   color: #1a1a2e;
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
 }
 
-.popular-tag-count {
+.category-count {
+  color: #666;
+  font-size: 1rem;
+}
+
+.count-number {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.count-label {
+  margin-left: 0.3rem;
+}
+
+.category-arrow {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 40px;
+  height: 40px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
-/* 动画效果 */
-.tag-item {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
   opacity: 0;
-  transform: scale(0.8);
-  animation: popIn 0.5s ease forwards;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
 }
 
-.tag-item:nth-child(1) { animation-delay: 0s; }
-.tag-item:nth-child(2) { animation-delay: 0.05s; }
-.tag-item:nth-child(3) { animation-delay: 0.1s; }
-.tag-item:nth-child(4) { animation-delay: 0.15s; }
-.tag-item:nth-child(5) { animation-delay: 0.2s; }
-.tag-item:nth-child(6) { animation-delay: 0.25s; }
-.tag-item:nth-child(7) { animation-delay: 0.3s; }
-.tag-item:nth-child(8) { animation-delay: 0.35s; }
-.tag-item:nth-child(9) { animation-delay: 0.4s; }
-.tag-item:nth-child(10) { animation-delay: 0.45s; }
-
-@keyframes popIn {
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.category-card:hover .category-arrow {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* 响应式 */
 @media (max-width: 768px) {
-  .tags-cloud {
-    padding: 2rem 1rem;
-  }
-  
-  .popular-tags {
+  .category-grid {
     grid-template-columns: 1fr;
   }
 }
 
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
-  .tags-cloud {
+  .category-card {
     background: rgba(30, 30, 50, 0.95);
   }
-  
-  .tag-item {
-    background: rgba(50, 50, 70, 0.8);
-    color: #a8b2ff;
-  }
-  
-  .popular-tag {
-    background: rgba(40, 40, 60, 0.95);
-  }
-  
-  .popular-tag-name {
+  .category-title {
     color: #e0e0e0;
+  }
+}
+
+/* 滚动动画 */
+.category-card {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.category-card:nth-child(1) { animation-delay: 0s; }
+.category-card:nth-child(2) { animation-delay: 0.1s; }
+.category-card:nth-child(3) { animation-delay: 0.2s; }
+.category-card:nth-child(4) { animation-delay: 0.3s; }
+.category-card:nth-child(5) { animation-delay: 0.4s; }
+.category-card:nth-child(6) { animation-delay: 0.5s; }
+.category-card:nth-child(7) { animation-delay: 0.6s; }
+.category-card:nth-child(8) { animation-delay: 0.7s; }
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
