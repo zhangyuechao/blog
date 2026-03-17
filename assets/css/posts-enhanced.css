@@ -17,7 +17,7 @@
 
 /* 2. 页面标题区域美化 */
 .posts-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   padding: 3rem 2rem;
   border-radius: 0 0 30px 30px;
   margin: 1rem 0 3rem 0;
@@ -73,11 +73,11 @@
 .posts-year-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #667eea;
+  color: #0ea5e9;
   margin: 3rem 0 2rem;
   padding-bottom: 1rem;
   border-bottom: 3px solid;
-  border-image: linear-gradient(90deg, #667eea 0%, #764ba2 100%) 1;
+  border-image: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%) 1;
   display: inline-block;
 }
 
@@ -113,7 +113,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 50%, #06b6d4 100%);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
@@ -158,7 +158,7 @@
   position: absolute;
   top: 1rem;
   left: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   color: white;
   padding: 0.4rem 1rem;
   border-radius: 20px;
@@ -196,7 +196,7 @@
 }
 
 .post-card-title a:hover {
-  color: #667eea;
+  color: #0ea5e9;
 }
 
 /* 12. 文章摘要 */
@@ -252,7 +252,7 @@
 
 .post-card-tag {
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
-  color: #667eea;
+  color: #0ea5e9;
   padding: 0.3rem 0.8rem;
   border-radius: 15px;
   font-size: 0.75rem;
@@ -262,7 +262,7 @@
 }
 
 .post-card-tag:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   color: white;
   transform: scale(1.05);
 }
@@ -292,19 +292,19 @@
 
 .pagination a {
   background: white;
-  color: #667eea;
+  color: #0ea5e9;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .pagination a:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   color: white;
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(102,126,234,0.4);
 }
 
 .pagination .current {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   color: white;
   box-shadow: 0 4px 15px rgba(102,126,234,0.4);
 }
@@ -345,8 +345,8 @@
 
 .posts-filter-btn:hover,
 .posts-filter-btn.active {
-  border-color: #667eea;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #0ea5e9;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   color: white;
 }
 
@@ -369,7 +369,7 @@
 .posts-stat-value {
   font-size: 2.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -392,7 +392,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid #e4e8ec;
-  border-top-color: #667eea;
+  border-top-color: #0ea5e9;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -459,7 +459,7 @@
 
 /* 24. 特色文章标记 */
 .post-card.featured {
-  border: 2px solid #667eea;
+  border: 2px solid #0ea5e9;
   position: relative;
 }
 
@@ -468,7 +468,7 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
   color: white;
   padding: 0.3rem 0.8rem;
   border-radius: 15px;
