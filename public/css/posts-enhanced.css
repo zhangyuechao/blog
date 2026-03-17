@@ -1,0 +1,494 @@
+/* ============================================
+   Posts 页面高级美化样式 - 25点优化
+   目标：达到95分视觉效果
+   ============================================ */
+
+/* 导航栏层级修复 - 确保在最上层 */
+.main-menu {
+  position: relative;
+  z-index: 1000 !important;
+}
+
+/* 1. 页面整体背景优化 */
+.posts-page {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  min-height: 100vh;
+}
+
+/* 2. 页面标题区域美化 */
+.posts-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 3rem 2rem;
+  border-radius: 0 0 30px 30px;
+  margin: 1rem 0 3rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.posts-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
+  background-size: 40px 40px;
+  animation: float 20s linear infinite;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(40px, 40px) rotate(360deg); }
+}
+
+.posts-header h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.posts-header p {
+  color: rgba(255,255,255,0.9);
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 1rem auto 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* 3. 文章列表容器优化 */
+.posts-list {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* 4. 年份标题美化 */
+.posts-year-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #667eea;
+  margin: 3rem 0 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid;
+  border-image: linear-gradient(90deg, #667eea 0%, #764ba2 100%) 1;
+  display: inline-block;
+}
+
+/* 5. 文章卡片网格布局 */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* 6. 文章卡片立体效果 */
+.post-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.post-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+}
+
+.post-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.post-card:hover::after {
+  transform: scaleX(1);
+}
+
+/* 7. 文章封面图区域 */
+.post-card-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.post-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.post-card:hover .post-card-image img {
+  transform: scale(1.1);
+}
+
+/* 8. 图片遮罩渐变 */
+.post-card-image::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+  pointer-events: none;
+}
+
+/* 9. 分类标签定位在图片上 */
+.post-card-category {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  z-index: 2;
+  box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+}
+
+/* 10. 文章内容区域 */
+.post-card-content {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 11. 文章标题样式 */
+.post-card-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-card-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.post-card-title a:hover {
+  color: #667eea;
+}
+
+/* 12. 文章摘要 */
+.post-card-summary {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+/* 13. 元信息区域 */
+.post-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* 14. 日期图标样式 */
+.post-card-date {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.post-card-date::before {
+  content: '📅';
+  font-size: 0.9rem;
+}
+
+/* 15. 阅读时间样式 */
+.post-card-reading-time::before {
+  content: '⏱️';
+  font-size: 0.9rem;
+}
+
+/* 16. 标签云样式 */
+.post-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.post-card-tag {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  color: #667eea;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: 1px solid rgba(102,126,234,0.2);
+}
+
+.post-card-tag:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: scale(1.05);
+}
+
+/* 17. 分页美化 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 4rem 0;
+  padding: 2rem;
+}
+
+.pagination a,
+.pagination span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+
+.pagination a {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.pagination a:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+}
+
+.pagination .current {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+}
+
+.pagination .ellipsis {
+  color: #999;
+}
+
+/* 18. 快速筛选栏 */
+.posts-filter {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  margin-bottom: 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.posts-filter-label {
+  font-weight: 600;
+  color: #333;
+  margin-right: 1rem;
+}
+
+.posts-filter-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  border: 2px solid #e4e8ec;
+  background: white;
+  color: #666;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.posts-filter-btn:hover,
+.posts-filter-btn.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+/* 19. 统计信息栏 */
+.posts-stats {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin: 3rem 0;
+  padding: 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.posts-stat {
+  text-align: center;
+}
+
+.posts-stat-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.posts-stat-label {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* 20. 加载动画 */
+.posts-loading {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.posts-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e4e8ec;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 21. 滚动显示动画 */
+.post-card {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.post-card:nth-child(1) { animation-delay: 0s; }
+.post-card:nth-child(2) { animation-delay: 0.1s; }
+.post-card:nth-child(3) { animation-delay: 0.2s; }
+.post-card:nth-child(4) { animation-delay: 0.3s; }
+.post-card:nth-child(5) { animation-delay: 0.4s; }
+.post-card:nth-child(6) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 22. 响应式优化 */
+@media (max-width: 768px) {
+  .posts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .posts-header h1 {
+    font-size: 2rem;
+  }
+  
+  .posts-stats {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
+/* 23. 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .posts-page {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+  
+  .post-card {
+    background: rgba(30, 30, 50, 0.95);
+  }
+  
+  .post-card-title {
+    color: #e0e0e0;
+  }
+  
+  .post-card-summary {
+    color: #aaa;
+  }
+}
+
+/* 24. 特色文章标记 */
+.post-card.featured {
+  border: 2px solid #667eea;
+  position: relative;
+}
+
+.post-card.featured::before {
+  content: '★ 精选';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  z-index: 2;
+}
+
+/* 25. 空状态提示 */
+.posts-empty {
+  text-align: center;
+  padding: 5rem 2rem;
+  color: #666;
+}
+
+.posts-empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+}
+
+.posts-empty-text {
+  font-size: 1.2rem;
+}

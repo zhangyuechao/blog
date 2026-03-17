@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>技术教程 on 🦞 OpenClaw 技术博客</title><link>http://43.160.220.201/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/</link><description>Recent content in 技术教程 on 🦞 OpenClaw 技术博客</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>team@openclaw.ai (OpenClaw 技术团队)</managingEditor><webMaster>team@openclaw.ai (OpenClaw 技术团队)</webMaster><copyright>© 2026 OpenClaw 技术团队</copyright><lastBuildDate>Tue, 17 Mar 2026 11:02:00 +0800</lastBuildDate><atom:link href="http://43.160.220.201/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/index.xml" rel="self" type="application/rss+xml"/><item><title>OpenClaw 配置文件详解：掌握 hugo.toml 的每一个参数</title><link>http://43.160.220.201/posts/openclaw-02-config-guide/</link><pubDate>Tue, 17 Mar 2026 11:02:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-02-config-guide/</guid><description>&lt;h2 class="relative group">配置文件概述
+ &lt;div id="配置文件概述" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e9%85%8d%e7%bd%ae%e6%96%87%e4%bb%b6%e6%a6%82%e8%bf%b0" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>OpenClaw 的核心配置存储在 &lt;code>hugo.toml&lt;/code> 文件中。这个文件控制着 AI 助手的行为、模型选择、技能加载等各个方面。&lt;/p>
+
+&lt;h2 class="relative group">基础配置
+ &lt;div id="基础配置" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e7%a1%80%e9%85%8d%e7%bd%ae" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-toml" data-lang="toml">&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">name&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;我的助手&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">default_model&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;gpt-4&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">language&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;zh-CN&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h3 class="relative group">模型配置
+ &lt;div id="模型配置" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a8%a1%e5%9e%8b%e9%85%8d%e7%bd%ae" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-toml" data-lang="toml">&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">models&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">[[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">models&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">providers&lt;/span>&lt;span class="p">]]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">name&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;openai&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">api_key&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;${OPENAI_API_KEY}&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">base_url&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;https://api.openai.com/v1&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">[[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">models&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">providers&lt;/span>&lt;span class="p">]]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">name&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;anthropic&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">api_key&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;${ANTHROPIC_API_KEY}&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">技能系统配置
+ &lt;div id="技能系统配置" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%8a%80%e8%83%bd%e7%b3%bb%e7%bb%9f%e9%85%8d%e7%bd%ae" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-toml" data-lang="toml">&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">skills&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">auto_load&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">directory&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;./skills&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">skills&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">enabled&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">filesystem&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">web_search&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">code_execution&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">false&lt;/span> &lt;span class="c"># 安全考虑&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">记忆系统配置
+ &lt;div id="记忆系统配置" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e8%ae%b0%e5%bf%86%e7%b3%bb%e7%bb%9f%e9%85%8d%e7%bd%ae" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-toml" data-lang="toml">&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">memory&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">backend&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;sqlite&amp;#34;&lt;/span> &lt;span class="c"># 或 &amp;#34;redis&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retention_days&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="mi">90&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">memory&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">embedding&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">provider&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;openai&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">model&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;text-embedding-3-small&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">安全与权限
+ &lt;div id="安全与权限" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%89%e5%85%a8%e4%b8%8e%e6%9d%83%e9%99%90" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-toml" data-lang="toml">&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">security&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">allow_shell_execution&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">false&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">allowed_paths&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;/home/user/documents&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;/home/user/projects&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">blocked_commands&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;rm -rf /&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;format&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;dd&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">多用户配置
+ &lt;div id="多用户配置" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%a4%9a%e7%94%a8%e6%88%b7%e9%85%8d%e7%bd%ae" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-toml" data-lang="toml">&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">multi_user&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">authentication&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;jwt&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">[[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">multi_user&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">users&lt;/span>&lt;span class="p">]]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">username&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;admin&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">role&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;administrator&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">[[&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">multi_user&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">users&lt;/span>&lt;span class="p">]]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">username&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;guest&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">role&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;restricted&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">总结
+ &lt;div id="总结" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%80%bb%e7%bb%93" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>合理配置 hugo.toml 可以让你的 OpenClaw 助手更加智能、安全、高效。建议根据实际需求调整各项参数。&lt;/p></description></item><item><title>OpenClaw 入门指南：从零开始搭建你的 AI 助手</title><link>http://43.160.220.201/posts/openclaw-01-getting-started/</link><pubDate>Tue, 17 Mar 2026 11:00:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-01-getting-started/</guid><description>&lt;h2 class="relative group">什么是 OpenClaw？
+ &lt;div id="什么是-openclaw" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%bb%80%e4%b9%88%e6%98%af-openclaw" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>OpenClaw（小龙虾）是一个开源的 AI 代理框架，让你能够轻松构建和管理智能助手。它支持多种 AI 模型，提供丰富的工具集成，让你可以快速搭建个性化的 AI 工作流。&lt;/p>
+
+&lt;h2 class="relative group">安装步骤
+ &lt;div id="安装步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%89%e8%a3%85%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p>
+&lt;ul>
+&lt;li>Linux/macOS/Windows (WSL)&lt;/li>
+&lt;li>Node.js 18+&lt;/li>
+&lt;li>Git&lt;/li>
+&lt;/ul>
+
+&lt;h3 class="relative group">2. 安装 OpenClaw
+ &lt;div id="2-安装-openclaw" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#2-%e5%ae%89%e8%a3%85-openclaw" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 克隆仓库&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">git clone https://github.com/openclaw/openclaw.git
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 进入目录&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> openclaw
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 安装依赖&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm install
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 构建项目&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm run build&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h3 class="relative group">3. 配置 Gateway
+ &lt;div id="3-配置-gateway" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#3-%e9%85%8d%e7%bd%ae-gateway" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 启动 Gateway 服务&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openclaw gateway start
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 检查状态&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openclaw gateway status&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">Sessions（会话）
+ &lt;div id="sessions会话" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#sessions%e4%bc%9a%e8%af%9d" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>OpenClaw 使用会话机制管理不同的对话上下文。每个会话都是独立的，可以配置不同的模型和参数。&lt;/p></description></item><item><title>OpenClaw 入门指南：从零开始搭建你的 AI 助手</title><link>http://43.160.220.201/posts/openclaw-99-test-copy/</link><pubDate>Tue, 17 Mar 2026 11:00:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-99-test-copy/</guid><description>&lt;h2 class="relative group">什么是 OpenClaw？
+ &lt;div id="什么是-openclaw" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%bb%80%e4%b9%88%e6%98%af-openclaw" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>OpenClaw（小龙虾）是一个开源的 AI 代理框架，让你能够轻松构建和管理智能助手。它支持多种 AI 模型，提供丰富的工具集成，让你可以快速搭建个性化的 AI 工作流。&lt;/p>
+
+&lt;h2 class="relative group">安装步骤
+ &lt;div id="安装步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%89%e8%a3%85%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p>
+&lt;ul>
+&lt;li>Linux/macOS/Windows (WSL)&lt;/li>
+&lt;li>Node.js 18+&lt;/li>
+&lt;li>Git&lt;/li>
+&lt;/ul>
+
+&lt;h3 class="relative group">2. 安装 OpenClaw
+ &lt;div id="2-安装-openclaw" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#2-%e5%ae%89%e8%a3%85-openclaw" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 克隆仓库&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">git clone https://github.com/openclaw/openclaw.git
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 进入目录&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> openclaw
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 安装依赖&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm install
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 构建项目&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm run build&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h3 class="relative group">3. 配置 Gateway
+ &lt;div id="3-配置-gateway" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#3-%e9%85%8d%e7%bd%ae-gateway" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 启动 Gateway 服务&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openclaw gateway start
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 检查状态&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openclaw gateway status&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">Sessions（会话）
+ &lt;div id="sessions会话" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#sessions%e4%bc%9a%e8%af%9d" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>OpenClaw 使用会话机制管理不同的对话上下文。每个会话都是独立的，可以配置不同的模型和参数。&lt;/p></description></item></channel></rss>

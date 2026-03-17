@@ -1,0 +1,1743 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Security on 🦞 OpenClaw 技术博客</title><link>http://43.160.220.201/categories/security/</link><description>Recent content in Security on 🦞 OpenClaw 技术博客</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>team@openclaw.ai (OpenClaw 技术团队)</managingEditor><webMaster>team@openclaw.ai (OpenClaw 技术团队)</webMaster><copyright>© 2026 OpenClaw 技术团队</copyright><lastBuildDate>Tue, 17 Mar 2026 10:58:00 +0800</lastBuildDate><atom:link href="http://43.160.220.201/categories/security/index.xml" rel="self" type="application/rss+xml"/><item><title>防止 CSRF 攻击 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-190-%E9%98%B2%E6%AD%A2-csrf-%E6%94%BB%E5%87%BB-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:58:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-190-%E9%98%B2%E6%AD%A2-csrf-%E6%94%BB%E5%87%BB-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>保护 OpenClaw 免受 CSRF 威胁。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，防止 CSRF 攻击 (进阶版) 是确保系统可维护性的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>JWT 安全实践 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-155-jwt-%E5%AE%89%E5%85%A8%E5%AE%9E%E8%B7%B5-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:48:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-155-jwt-%E5%AE%89%E5%85%A8%E5%AE%9E%E8%B7%B5-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>正确使用 JWT 保护 OpenClaw API。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，JWT 安全实践 (进阶版) 是确保系统扩展性的关键技术。通过合理应用，可以显著提升 OpenClaw 的用户体验。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>SQL 注入防护 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-184-sql-%E6%B3%A8%E5%85%A5%E9%98%B2%E6%8A%A4-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:46:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-184-sql-%E6%B3%A8%E5%85%A5%E9%98%B2%E6%8A%A4-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>避免 OpenClaw 数据库注入风险。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，SQL 注入防护 (进阶版) 是确保系统扩展性的关键技术。通过合理应用，可以显著提升 OpenClaw 的稳定性。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>XSS 防护指南 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-122-xss-%E9%98%B2%E6%8A%A4%E6%8C%87%E5%8D%97-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:42:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-122-xss-%E9%98%B2%E6%8A%A4%E6%8C%87%E5%8D%97-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>防止 OpenClaw 遭受 XSS 攻击。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，XSS 防护指南 (进阶版) 是确保系统可维护性的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>访问控制策略</title><link>http://43.160.220.201/posts/openclaw-120-%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E7%AD%96%E7%95%A5/</link><pubDate>Tue, 17 Mar 2026 10:38:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-120-%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E7%AD%96%E7%95%A5/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>细粒度的 OpenClaw 权限控制。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，访问控制策略 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的稳定性。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>数据加密存储 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-148-%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%E5%AD%98%E5%82%A8-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:34:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-148-%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%E5%AD%98%E5%82%A8-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>加密 OpenClaw 敏感数据。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，数据加密存储 (进阶版) 是确保系统扩展性的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>安全审计日志 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-143-%E5%AE%89%E5%85%A8%E5%AE%A1%E8%AE%A1%E6%97%A5%E5%BF%97-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:24:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-143-%E5%AE%89%E5%85%A8%E5%AE%A1%E8%AE%A1%E6%97%A5%E5%BF%97-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>记录 OpenClaw 安全相关操作。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，安全审计日志 (进阶版) 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的用户体验。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>传输层安全</title><link>http://43.160.220.201/posts/openclaw-113-%E4%BC%A0%E8%BE%93%E5%B1%82%E5%AE%89%E5%85%A8/</link><pubDate>Tue, 17 Mar 2026 10:24:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-113-%E4%BC%A0%E8%BE%93%E5%B1%82%E5%AE%89%E5%85%A8/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>使用 TLS 保护 OpenClaw 通信。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，传输层安全 是确保系统扩展性的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>防止 CSRF 攻击</title><link>http://43.160.220.201/posts/openclaw-110-%E9%98%B2%E6%AD%A2-csrf-%E6%94%BB%E5%87%BB/</link><pubDate>Tue, 17 Mar 2026 10:18:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-110-%E9%98%B2%E6%AD%A2-csrf-%E6%94%BB%E5%87%BB/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>保护 OpenClaw 免受 CSRF 威胁。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，防止 CSRF 攻击 是确保系统扩展性的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>访问控制策略 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-200-%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E7%AD%96%E7%95%A5-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:18:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-200-%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E7%AD%96%E7%95%A5-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>细粒度的 OpenClaw 权限控制。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，访问控制策略 (进阶版) 是确保系统扩展性的关键技术。通过合理应用，可以显著提升 OpenClaw 的用户体验。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>OAuth2 集成 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-134-oauth2-%E9%9B%86%E6%88%90-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:06:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-134-oauth2-%E9%9B%86%E6%88%90-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>为 OpenClaw 添加 OAuth2 认证。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，OAuth2 集成 (进阶版) 是确保系统可靠性的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>SQL 注入防护</title><link>http://43.160.220.201/posts/openclaw-104-sql-%E6%B3%A8%E5%85%A5%E9%98%B2%E6%8A%A4/</link><pubDate>Tue, 17 Mar 2026 10:06:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-104-sql-%E6%B3%A8%E5%85%A5%E9%98%B2%E6%8A%A4/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>避免 OpenClaw 数据库注入风险。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，SQL 注入防护 是确保系统扩展性的关键技术。通过合理应用，可以显著提升 OpenClaw 的稳定性。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>API 签名验证 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-163-api-%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:04:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-163-api-%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>实现 OpenClaw API 请求签名机制。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，API 签名验证 (进阶版) 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>传输层安全 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-193-%E4%BC%A0%E8%BE%93%E5%B1%82%E5%AE%89%E5%85%A8-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:04:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-193-%E4%BC%A0%E8%BE%93%E5%B1%82%E5%AE%89%E5%85%A8-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>使用 TLS 保护 OpenClaw 通信。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，传输层安全 (进阶版) 是确保系统可靠性的关键技术。通过合理应用，可以显著提升 OpenClaw 的用户体验。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>数据加密存储</title><link>http://43.160.220.201/posts/openclaw-068-%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%E5%AD%98%E5%82%A8/</link><pubDate>Tue, 17 Mar 2026 09:54:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-068-%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%E5%AD%98%E5%82%A8/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>加密 OpenClaw 敏感数据。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，数据加密存储 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>安全审计日志</title><link>http://43.160.220.201/posts/openclaw-063-%E5%AE%89%E5%85%A8%E5%AE%A1%E8%AE%A1%E6%97%A5%E5%BF%97/</link><pubDate>Tue, 17 Mar 2026 09:44:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-063-%E5%AE%89%E5%85%A8%E5%AE%A1%E8%AE%A1%E6%97%A5%E5%BF%97/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>记录 OpenClaw 安全相关操作。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，安全审计日志 是确保系统可维护性的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>OAuth2 集成</title><link>http://43.160.220.201/posts/openclaw-054-oauth2-%E9%9B%86%E6%88%90/</link><pubDate>Tue, 17 Mar 2026 09:26:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-054-oauth2-%E9%9B%86%E6%88%90/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>为 OpenClaw 添加 OAuth2 认证。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，OAuth2 集成 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>API 签名验证</title><link>http://43.160.220.201/posts/openclaw-083-api-%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81/</link><pubDate>Tue, 17 Mar 2026 09:24:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-083-api-%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>实现 OpenClaw API 请求签名机制。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，API 签名验证 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>JWT 安全实践</title><link>http://43.160.220.201/posts/openclaw-075-jwt-%E5%AE%89%E5%85%A8%E5%AE%9E%E8%B7%B5/</link><pubDate>Tue, 17 Mar 2026 09:08:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-075-jwt-%E5%AE%89%E5%85%A8%E5%AE%9E%E8%B7%B5/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>正确使用 JWT 保护 OpenClaw API。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，JWT 安全实践 是确保系统可靠性的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>XSS 防护指南</title><link>http://43.160.220.201/posts/openclaw-042-xss-%E9%98%B2%E6%8A%A4%E6%8C%87%E5%8D%97/</link><pubDate>Tue, 17 Mar 2026 09:02:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-042-xss-%E9%98%B2%E6%8A%A4%E6%8C%87%E5%8D%97/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>防止 OpenClaw 遭受 XSS 攻击。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，XSS 防护指南 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item></channel></rss>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>问题排查 on 🦞 OpenClaw 技术博客</title><link>http://43.160.220.201/tags/%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/</link><description>Recent content in 问题排查 on 🦞 OpenClaw 技术博客</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>team@openclaw.ai (OpenClaw 技术团队)</managingEditor><webMaster>team@openclaw.ai (OpenClaw 技术团队)</webMaster><copyright>© 2026 OpenClaw 技术团队</copyright><lastBuildDate>Tue, 17 Mar 2026 09:12:00 +0800</lastBuildDate><atom:link href="http://43.160.220.201/tags/%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/index.xml" rel="self" type="application/rss+xml"/><item><title>OpenClaw 调试技巧：快速定位问题</title><link>http://43.160.220.201/posts/openclaw-37-debugging/</link><pubDate>Tue, 17 Mar 2026 09:12:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-37-debugging/</guid><description>&lt;h2 class="relative group">调试模式
+ &lt;div id="调试模式" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e8%b0%83%e8%af%95%e6%a8%a1%e5%bc%8f" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 开启调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openclaw --debug
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 详细日志&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openclaw --verbose
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 单步执行&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openclaw --step&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">日志级别
+ &lt;div id="日志级别" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%97%a5%e5%bf%97%e7%ba%a7%e5%88%ab" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 设置日志级别
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">logger&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">setLevel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;debug&amp;#39;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 查看调用链
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nx">openclaw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">logger&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">trace&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;执行路径&amp;#39;&lt;/span>&lt;span class="p">);&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">技能调试
+ &lt;div id="技能调试" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%8a%80%e8%83%bd%e8%b0%83%e8%af%95" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 技能单元测试
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nx">openclaw&lt;/span> &lt;span class="nx">skills&lt;/span> &lt;span class="nx">test&lt;/span> &lt;span class="nx">my&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="nx">skill&lt;/span> &lt;span class="o">--&lt;/span>&lt;span class="nx">verbose&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 模拟执行
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nx">openclaw&lt;/span> &lt;span class="nx">skills&lt;/span> &lt;span class="nx">simulate&lt;/span> &lt;span class="nx">my&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="nx">skill&lt;/span> &lt;span class="o">--&lt;/span>&lt;span class="nx">input&lt;/span> &lt;span class="s2">&amp;#34;测试输入&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">网络调试
+ &lt;div id="网络调试" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e7%bd%91%e7%bb%9c%e8%b0%83%e8%af%95" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 查看 API 调用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openclaw --trace-api
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 检查响应时间&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openclaw --profile&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">常见问题
+ &lt;div id="常见问题" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%b8%b8%e8%a7%81%e9%97%ae%e9%a2%98" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;table>
+ &lt;thead>
+ &lt;tr>
+ &lt;th>问题&lt;/th>
+ &lt;th>解决方法&lt;/th>
+ &lt;/tr>
+ &lt;/thead>
+ &lt;tbody>
+ &lt;tr>
+ &lt;td>技能加载失败&lt;/td>
+ &lt;td>检查 manifest.json&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+ &lt;td>API 超时&lt;/td>
+ &lt;td>检查网络或增加超时时间&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+ &lt;td>内存不足&lt;/td>
+ &lt;td>减少并发或增加内存&lt;/td>
+ &lt;/tr>
+ &lt;/tbody>
+&lt;/table>
+
+&lt;h2 class="relative group">总结
+ &lt;div id="总结" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%80%bb%e7%bb%93" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>熟练使用调试工具是高效开发的必备技能。&lt;/p></description></item></channel></rss>

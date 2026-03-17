@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>AI记忆 on 🦞 OpenClaw 技术博客</title><link>http://43.160.220.201/tags/ai%E8%AE%B0%E5%BF%86/</link><description>Recent content in AI记忆 on 🦞 OpenClaw 技术博客</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>team@openclaw.ai (OpenClaw 技术团队)</managingEditor><webMaster>team@openclaw.ai (OpenClaw 技术团队)</webMaster><copyright>© 2026 OpenClaw 技术团队</copyright><lastBuildDate>Tue, 17 Mar 2026 11:06:00 +0800</lastBuildDate><atom:link href="http://43.160.220.201/tags/ai%E8%AE%B0%E5%BF%86/index.xml" rel="self" type="application/rss+xml"/><item><title>OpenClaw 内存系统深度解析：如何让 AI 记住你的一切</title><link>http://43.160.220.201/posts/openclaw-04-memory-system/</link><pubDate>Tue, 17 Mar 2026 11:06:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-04-memory-system/</guid><description>&lt;h2 class="relative group">为什么 AI 需要记忆？
+ &lt;div id="为什么-ai-需要记忆" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88-ai-%e9%9c%80%e8%a6%81%e8%ae%b0%e5%bf%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>传统的 AI 对话是&amp;quot;无状态&amp;quot;的，每次对话都是全新的开始。OpenClaw 的记忆系统让 AI 能够：&lt;/p>
+&lt;ul>
+&lt;li>记住用户的偏好和习惯&lt;/li>
+&lt;li>跨会话保持上下文&lt;/li>
+&lt;li>积累知识和经验&lt;/li>
+&lt;/ul>
+
+&lt;h2 class="relative group">记忆系统的架构
+ &lt;div id="记忆系统的架构" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e8%ae%b0%e5%bf%86%e7%b3%bb%e7%bb%9f%e7%9a%84%e6%9e%b6%e6%9e%84" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">用户输入 → 向量化 → 存储 → 检索 → 增强上下文 → AI 响应&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">向量存储原理
+ &lt;div id="向量存储原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%90%91%e9%87%8f%e5%ad%98%e5%82%a8%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">Embedding 模型
+ &lt;div id="embedding-模型" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#embedding-%e6%a8%a1%e5%9e%8b" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>OpenClaw 使用 embedding 模型将文本转换为向量：&lt;/p></description></item></channel></rss>

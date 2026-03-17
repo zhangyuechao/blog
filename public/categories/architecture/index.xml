@@ -1,0 +1,1824 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Architecture on 🦞 OpenClaw 技术博客</title><link>http://43.160.220.201/categories/architecture/</link><description>Recent content in Architecture on 🦞 OpenClaw 技术博客</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>team@openclaw.ai (OpenClaw 技术团队)</managingEditor><webMaster>team@openclaw.ai (OpenClaw 技术团队)</webMaster><copyright>© 2026 OpenClaw 技术团队</copyright><lastBuildDate>Tue, 17 Mar 2026 10:58:00 +0800</lastBuildDate><atom:link href="http://43.160.220.201/categories/architecture/index.xml" rel="self" type="application/rss+xml"/><item><title>配置管理策略</title><link>http://43.160.220.201/posts/openclaw-100-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%E7%AD%96%E7%95%A5/</link><pubDate>Tue, 17 Mar 2026 10:58:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-100-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%E7%AD%96%E7%95%A5/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>管理多环境 OpenClaw 配置的最佳实践。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，配置管理策略 是确保系统可维护性的关键技术。通过合理应用，可以显著提升 OpenClaw 的稳定性。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>中间件设计模式 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-187-%E4%B8%AD%E9%97%B4%E4%BB%B6%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:52:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-187-%E4%B8%AD%E9%97%B4%E4%BB%B6%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>使用中间件扩展 OpenClaw 功能。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，中间件设计模式 (进阶版) 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>装饰器模式应用 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-153-%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F%E5%BA%94%E7%94%A8-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:44:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-153-%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F%E5%BA%94%E7%94%A8-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>用装饰器增强 OpenClaw 技能功能。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，装饰器模式应用 (进阶版) 是确保系统可维护性的关键技术。通过合理应用，可以显著提升 OpenClaw 的稳定性。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>状态管理模式 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-121-%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%A8%A1%E5%BC%8F-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:40:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-121-%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%A8%A1%E5%BC%8F-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>OpenClaw 中的状态管理方案对比。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，状态管理模式 (进阶版) 是确保系统可维护性的关键技术。通过合理应用，可以显著提升 OpenClaw 的稳定性。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>配置管理策略 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-180-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%E7%AD%96%E7%95%A5-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:38:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-180-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%E7%AD%96%E7%95%A5-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>管理多环境 OpenClaw 配置的最佳实践。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，配置管理策略 (进阶版) 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的用户体验。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>微服务拆分策略</title><link>http://43.160.220.201/posts/openclaw-119-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86%E7%AD%96%E7%95%A5/</link><pubDate>Tue, 17 Mar 2026 10:36:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-119-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86%E7%AD%96%E7%95%A5/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>如何将 OpenClaw 应用拆分为微服务架构。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，微服务拆分策略 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>模块化设计指南</title><link>http://43.160.220.201/posts/openclaw-116-%E6%A8%A1%E5%9D%97%E5%8C%96%E8%AE%BE%E8%AE%A1%E6%8C%87%E5%8D%97/</link><pubDate>Tue, 17 Mar 2026 10:30:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-116-%E6%A8%A1%E5%9D%97%E5%8C%96%E8%AE%BE%E8%AE%A1%E6%8C%87%E5%8D%97/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>如何设计高内聚低耦合的 OpenClaw 模块。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，模块化设计指南 是确保系统可靠性的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>插件系统设计 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-144-%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:26:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-144-%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>从零构建 OpenClaw 插件架构。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，插件系统设计 (进阶版) 是确保系统可靠性的关键技术。通过合理应用，可以显著提升 OpenClaw 的稳定性。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>领域驱动设计实践</title><link>http://43.160.220.201/posts/openclaw-114-%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E5%AE%9E%E8%B7%B5/</link><pubDate>Tue, 17 Mar 2026 10:26:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-114-%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E5%AE%9E%E8%B7%B5/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>使用 DDD 思想设计 OpenClaw 核心模块。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，领域驱动设计实践 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>微服务拆分策略 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-199-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86%E7%AD%96%E7%95%A5-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:16:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-199-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86%E7%AD%96%E7%95%A5-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>如何将 OpenClaw 应用拆分为微服务架构。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，微服务拆分策略 (进阶版) 是确保系统可维护性的关键技术。通过合理应用，可以显著提升 OpenClaw 的稳定性。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>整洁架构实践 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-169-%E6%95%B4%E6%B4%81%E6%9E%B6%E6%9E%84%E5%AE%9E%E8%B7%B5-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:16:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-169-%E6%95%B4%E6%B4%81%E6%9E%B6%E6%9E%84%E5%AE%9E%E8%B7%B5-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>在 OpenClaw 中实施整洁架构原则。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，整洁架构实践 (进阶版) 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>中间件设计模式</title><link>http://43.160.220.201/posts/openclaw-107-%E4%B8%AD%E9%97%B4%E4%BB%B6%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link><pubDate>Tue, 17 Mar 2026 10:12:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-107-%E4%B8%AD%E9%97%B4%E4%BB%B6%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>使用中间件扩展 OpenClaw 功能。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，中间件设计模式 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>模块化设计指南 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-196-%E6%A8%A1%E5%9D%97%E5%8C%96%E8%AE%BE%E8%AE%A1%E6%8C%87%E5%8D%97-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:10:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-196-%E6%A8%A1%E5%9D%97%E5%8C%96%E8%AE%BE%E8%AE%A1%E6%8C%87%E5%8D%97-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>如何设计高内聚低耦合的 OpenClaw 模块。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，模块化设计指南 (进阶版) 是确保系统性能的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>六边形架构应用 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-135-%E5%85%AD%E8%BE%B9%E5%BD%A2%E6%9E%B6%E6%9E%84%E5%BA%94%E7%94%A8-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:08:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-135-%E5%85%AD%E8%BE%B9%E5%BD%A2%E6%9E%B6%E6%9E%84%E5%BA%94%E7%94%A8-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>用六边形架构重构 OpenClaw 技能系统。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，六边形架构应用 (进阶版) 是确保系统扩展性的关键技术。通过合理应用，可以显著提升 OpenClaw 的响应速度。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>领域驱动设计实践 (进阶版)</title><link>http://43.160.220.201/posts/openclaw-194-%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E5%AE%9E%E8%B7%B5-%E8%BF%9B%E9%98%B6%E7%89%88/</link><pubDate>Tue, 17 Mar 2026 10:06:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-194-%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E5%AE%9E%E8%B7%B5-%E8%BF%9B%E9%98%B6%E7%89%88/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>使用 DDD 思想设计 OpenClaw 核心模块。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，领域驱动设计实践 (进阶版) 是确保系统扩展性的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>配置管理策略</title><link>http://43.160.220.201/posts/test-article/</link><pubDate>Tue, 17 Mar 2026 09:58:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/test-article/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>管理多环境 OpenClaw 配置的最佳实践。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，配置管理策略 是确保系统可维护性的关键技术。通过合理应用，可以显著提升 OpenClaw 的稳定性。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>插件系统设计</title><link>http://43.160.220.201/posts/openclaw-064-%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/</link><pubDate>Tue, 17 Mar 2026 09:46:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-064-%E6%8F%92%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>从零构建 OpenClaw 插件架构。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，插件系统设计 是确保系统扩展性的关键技术。通过合理应用，可以显著提升 OpenClaw 的开发效率。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>整洁架构实践</title><link>http://43.160.220.201/posts/openclaw-089-%E6%95%B4%E6%B4%81%E6%9E%B6%E6%9E%84%E5%AE%9E%E8%B7%B5/</link><pubDate>Tue, 17 Mar 2026 09:36:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-089-%E6%95%B4%E6%B4%81%E6%9E%B6%E6%9E%84%E5%AE%9E%E8%B7%B5/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>在 OpenClaw 中实施整洁架构原则。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，整洁架构实践 是确保系统可靠性的关键技术。通过合理应用，可以显著提升 OpenClaw 的稳定性。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>六边形架构应用</title><link>http://43.160.220.201/posts/openclaw-055-%E5%85%AD%E8%BE%B9%E5%BD%A2%E6%9E%B6%E6%9E%84%E5%BA%94%E7%94%A8/</link><pubDate>Tue, 17 Mar 2026 09:28:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-055-%E5%85%AD%E8%BE%B9%E5%BD%A2%E6%9E%B6%E6%9E%84%E5%BA%94%E7%94%A8/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>用六边形架构重构 OpenClaw 技能系统。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，六边形架构应用 是确保系统可靠性的关键技术。通过合理应用，可以显著提升 OpenClaw 的用户体验。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 配置示例
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">config&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">enabled&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">options&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">timeout&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">retries&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>装饰器模式应用</title><link>http://43.160.220.201/posts/openclaw-073-%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F%E5%BA%94%E7%94%A8/</link><pubDate>Tue, 17 Mar 2026 09:04:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-073-%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F%E5%BA%94%E7%94%A8/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>用装饰器增强 OpenClaw 技能功能。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，装饰器模式应用 是确保系统可靠性的关键技术。通过合理应用，可以显著提升 OpenClaw 的用户体验。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Python 集成示例&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">OpenClawClient&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">api_key&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">api_key&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">api_key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">process&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">input_data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="bp">self&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_api&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input_data&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item><item><title>状态管理模式</title><link>http://43.160.220.201/posts/openclaw-041-%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%A8%A1%E5%BC%8F/</link><pubDate>Tue, 17 Mar 2026 09:00:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-041-%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%A8%A1%E5%BC%8F/</guid><description>&lt;h2 class="relative group">引言
+ &lt;div id="引言" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bc%95%e8%a8%80" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>OpenClaw 中的状态管理方案对比。本文将深入探讨其实现原理、最佳实践和常见问题解决方案。&lt;/p>
+
+&lt;h2 class="relative group">核心概念
+ &lt;div id="核心概念" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">为什么需要这项技术
+ &lt;div id="为什么需要这项技术" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e8%bf%99%e9%a1%b9%e6%8a%80%e6%9c%af" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>在现代 AI 应用开发中，状态管理模式 是确保系统可维护性的关键技术。通过合理应用，可以显著提升 OpenClaw 的用户体验。&lt;/p>
+
+&lt;h3 class="relative group">基本原理
+ &lt;div id="基本原理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>架构清晰&lt;/strong>：职责分离，易于维护&lt;/li>
+&lt;li>&lt;strong>高可用性&lt;/strong>：故障自愈，自动恢复&lt;/li>
+&lt;li>&lt;strong>水平扩展&lt;/strong>：支持分布式部署&lt;/li>
+&lt;li>&lt;strong>可观测性&lt;/strong>：完整的监控和日志&lt;/li>
+&lt;/ul>
+&lt;div class="highlight-wrapper">&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># 配置文件&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">feature&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">settings&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">max_items&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache_ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3600&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>
+
+&lt;h2 class="relative group">实现步骤
+ &lt;div id="实现步骤" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%ae%9e%e7%8e%b0%e6%ad%a5%e9%aa%a4" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 环境准备
+ &lt;div id="1-环境准备" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>确保你的系统满足以下要求：&lt;/p></description></item></channel></rss>

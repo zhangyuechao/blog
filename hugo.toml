@@ -1,67 +1,91 @@
-baseURL = 'https://zhangyuechao.github.io/blog/'
+baseURL = 'http://43.160.220.201'
 languageCode = 'zh-CN'
 defaultContentLanguage = 'zh'
 theme = 'blowfish'
-title = '我的博客'
+title = '🦞 OpenClaw 技术博客'
 
 [params]
-  description = '一个专注于技术与生活的博客'
-  keywords = ['博客', '技术', '生活', '编程']
-  images = ['/img/og-image.jpg']
+  description = '探索 OpenClaw 小龙虾 AI 框架的无限可能，从入门到精通的技术指南'
+  keywords = ['OpenClaw', 'AI', '小龙虾', '技术博客', '人工智能', '教程']
+  images = ['/images/posts/ai-generated/hero-01.jpg']
   
-  # Blowfish 特定配置
+  # Blowfish 主题配置 - 高级美化
   [params.blowfish]
-    colorScheme = 'auto'  # auto, light, dark
-    defaultBackgroundImage = '/img/background.jpg'
+    colorScheme = 'ocean'
+    defaultAppearance = 'light'
+    autoSwitchAppearance = true
+    enableSearch = true
+    enableCodeCopy = true
+    showScrollToTop = true
+    enableImageZoom = true
     disableImageOptimization = false
     
-  # 作者信息 (GEO 优化关键)
+  # 首页配置
+  [params.home]
+    layout = 'profile'
+    showRecent = true
+    recentLimit = 9
+    cardView = true
+    cardViewScreenWidth = false
+    
+  # 作者信息
   [params.author]
-    name = '作者名字'
-    email = 'your@email.com'
-    # image = '/img/avatar.svg'
-    headline = '全栈开发者 | 技术博主'
-    bio = '热爱编程与分享，专注于 Web 开发和 AI 技术'
-    [[params.author.links]]
-      github = 'https://github.com/yourusername'
-    [[params.author.links]]
-      twitter = 'https://twitter.com/yourusername'
-    [[params.author.links]]
-      email = 'mailto:your@email.com'
+    name = 'OpenClaw 技术团队'
+    email = 'team@openclaw.ai'
+    headline = '🦞 探索 AI 的无限可能'
+    bio = '专注于 OpenClaw 小龙虾框架的技术研究与分享'
+    links = [
+      { github = 'https://github.com/openclaw' },
+      { twitter = 'https://twitter.com/openclaw' },
+      { email = 'mailto:team@openclaw.ai' },
+    ]
 
-# SEO 和 GEO 优化配置
-[params.seo]
-  enable = true
-  structuredData = true
-  openGraph = true
-  twitterCards = true
-
-# 菜单配置
+# 菜单配置 - 带图标
 [[menus.main]]
-  name = '首页'
+  name = '🏠 首页'
   pageRef = '/'
   weight = 10
 
 [[menus.main]]
-  name = '文章'
+  name = '📝 文章'
   pageRef = '/posts'
   weight = 20
 
 [[menus.main]]
-  name = '关于'
-  pageRef = '/about'
+  name = '🏷️ 标签'
+  pageRef = '/tags'
   weight = 30
 
-# 输出格式配置 (SEO 关键)
+[[menus.main]]
+  name = '📂 分类'
+  pageRef = '/categories'
+  weight = 40
+
+[[menus.main]]
+  name = '👤 关于'
+  pageRef = '/about'
+  weight = 50
+
+# 社交媒体
+[[menus.social]]
+  name = 'GitHub'
+  url = 'https://github.com/openclaw'
+  weight = 10
+  [menus.social.params]
+    icon = 'github'
+
+[[menus.social]]
+  name = 'Twitter'
+  url = 'https://twitter.com/openclaw'
+  weight = 20
+  [menus.social.params]
+    icon = 'twitter'
+
+# 输出格式
 [outputs]
   home = ['HTML', 'RSS', 'JSON']
   page = ['HTML']
   section = ['HTML', 'RSS']
-
-# RSS 配置
-[outputFormats.RSS]
-  mediatype = 'application/rss+xml'
-  baseName = 'index'
 
 # 分类和标签
 [taxonomies]
@@ -69,19 +93,13 @@ title = '我的博客'
   category = 'categories'
   author = 'authors'
 
-# 分页
+# 分页 - 每页9篇，3列布局
 [pagination]
-  pagerSize = 10
+  pagerSize = 9
 
-# 安全设置
-[security]
-  [security.exec]
-    allow = ['^dart-sass-embedded$', '^go$', '^npx$', '^postcss$', '^git$']
-    osEnv = ['(?i)^(PATH|PATHEXT|APPDATA|HOME|TMP|TEMP|XDG_CONFIG_HOME|NODE_OPTIONS)$']
-
-# 图片处理
+# 图片处理 - 高质量
 [imaging]
-  quality = 85
+  quality = 95
   resampleFilter = 'lanczos'
 
 # Markdown 配置
@@ -90,10 +108,11 @@ title = '我的博客'
     [markup.goldmark.renderer]
       unsafe = true
   [markup.highlight]
-    style = 'github'
+    style = 'dracula'
     lineNos = true
     codeFences = true
     guessSyntax = true
+    noClasses = false
   [markup.tableOfContents]
     startLevel = 2
     endLevel = 4

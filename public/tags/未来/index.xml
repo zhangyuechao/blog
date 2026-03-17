@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>未来 on 🦞 OpenClaw 技术博客</title><link>http://43.160.220.201/tags/%E6%9C%AA%E6%9D%A5/</link><description>Recent content in 未来 on 🦞 OpenClaw 技术博客</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>team@openclaw.ai (OpenClaw 技术团队)</managingEditor><webMaster>team@openclaw.ai (OpenClaw 技术团队)</webMaster><copyright>© 2026 OpenClaw 技术团队</copyright><lastBuildDate>Tue, 17 Mar 2026 09:16:00 +0800</lastBuildDate><atom:link href="http://43.160.220.201/tags/%E6%9C%AA%E6%9D%A5/index.xml" rel="self" type="application/rss+xml"/><item><title>OpenClaw 未来展望：AI 代理的进化方向</title><link>http://43.160.220.201/posts/openclaw-39-future/</link><pubDate>Tue, 17 Mar 2026 09:16:00 +0800</pubDate><author>team@openclaw.ai (OpenClaw 技术团队)</author><guid>http://43.160.220.201/posts/openclaw-39-future/</guid><description>&lt;h2 class="relative group">当前状态
+ &lt;div id="当前状态" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%bd%93%e5%89%8d%e7%8a%b6%e6%80%81" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+&lt;p>OpenClaw 已实现：&lt;/p>
+&lt;ul>
+&lt;li>多模型支持&lt;/li>
+&lt;li>技能扩展&lt;/li>
+&lt;li>记忆系统&lt;/li>
+&lt;li>多 Agent 协作&lt;/li>
+&lt;/ul>
+
+&lt;h2 class="relative group">发展方向
+ &lt;div id="发展方向" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#%e5%8f%91%e5%b1%95%e6%96%b9%e5%90%91" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h2>
+
+&lt;h3 class="relative group">1. 自主代理
+ &lt;div id="1-自主代理" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#1-%e8%87%aa%e4%b8%bb%e4%bb%a3%e7%90%86" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>AI 能够：&lt;/p>
+&lt;ul>
+&lt;li>自主规划任务&lt;/li>
+&lt;li>自我纠错&lt;/li>
+&lt;li>持续学习&lt;/li>
+&lt;/ul>
+
+&lt;h3 class="relative group">2. 多模态
+ &lt;div id="2-多模态" class="anchor">&lt;/div>
+ 
+ &lt;span
+ class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100 select-none">
+ &lt;a class="text-primary-300 dark:text-neutral-700 !no-underline" href="#2-%e5%a4%9a%e6%a8%a1%e6%80%81" aria-label="">#&lt;/a>
+ &lt;/span>
+ 
+&lt;/h3>
+&lt;p>支持：&lt;/p></description></item></channel></rss>

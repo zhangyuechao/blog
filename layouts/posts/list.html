@@ -1,0 +1,127 @@
+{{ define "main" }}
+{{ $hero := resources.GetMatch "images/posts/ai-generated/hero-01.jpg" }}
+
+{{/* 页面头部区域 */}}
+<div class="posts-header">
+  <h1>📝 技术文章</h1>
+  <p>探索 {{ .Site.Params.author.name | default "OpenClaw" }} 的完整技术指南，从入门到精通</p>
+</div>
+
+{{/* 统计信息 */}}
+<div class="posts-stats">
+  <div class="posts-stat">
+    <div class="posts-stat-value">198</div>
+    <div class="posts-stat-label">技术文章</div>
+  </div>
+  <div class="posts-stat">
+    <div class="posts-stat-value">8</div>
+    <div class="posts-stat-label">技术分类</div>
+  </div>
+  <div class="posts-stat">
+    <div class="posts-stat-value">23</div>
+    <div class="posts-stat-label">内容页面</div>
+  </div>
+</div>
+
+{{/* 快速筛选 */}}
+<div class="posts-filter">
+  <span class="posts-filter-label">📂 快速筛选：</span>
+  <a href="/categories/架构设计/" class="posts-filter-btn">架构设计</a>
+  <a href="/categories/性能优化/" class="posts-filter-btn">性能优化</a>
+  <a href="/categories/安全/" class="posts-filter-btn">安全</a>
+  <a href="/categories/集成/" class="posts-filter-btn">集成</a>
+  <a href="/categories/实战开发/" class="posts-filter-btn">实战开发</a>
+</div>
+
+<div class="posts-list">
+  {{/* 按年份分组显示文章 */}}
+  {{ $paginator := .Paginate (.Pages) 9 }}
+  
+  {{ range $paginator.Pages }}
+    {{ $date := .Date }}
+    {{ $year := $date.Format "2006" }}
+    
+    {{ if not (eq $year ($.Scratch.Get "currentYear")) }}
+      {{ $.Scratch.Set "currentYear" $year }}
+      <h2 class="posts-year-title">{{ $year }}</h2>
+    {{ end }}
+    
+    <div class="posts-grid">
+      {{ range $paginator.Pages }}
+      <article class="post-card {{ if .Params.featured }}featured{{ end }}">
+        {{/* 封面图 */}}
+        {{ if .Params.image }}
+        <div class="post-card-image">
+          <img src="{{ .Params.image }}" alt="{{ .Title }}" loading="lazy">
+          {{ if .Params.categories }}
+          <span class="post-card-category">{{ index .Params.categories 0 }}</span>
+          {{ end }}
+        </div>
+        {{ end }}
+        
+        <div class="post-card-content">
+          {{/* 标题 */}}
+          <h3 class="post-card-title">
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          </h3>
+          
+          {{/* 摘要 */}}
+          <p class="post-card-summary">
+            {{ if .Params.description }}
+              {{ .Params.description }}
+            {{ else }}
+              {{ .Summary | truncate 120 }}
+            {{ end }}
+          </p>
+          
+          {{/* 标签 */}}
+          {{ if .Params.tags }}
+          <div class="post-card-tags">
+            {{ range first 3 .Params.tags }}
+            <span class="post-card-tag">{{ . }}</span>
+            {{ end }}
+          </div>
+          {{ end }}
+          
+          {{/* 元信息 */}}
+          <div class="post-card-meta">
+            <span class="post-card-date">{{ .Date.Format "2006-01-02" }}</span>
+            {{ if .Params.author }}
+            <span>👤 {{ .Params.author }}</span>
+            {{ end }}
+          </div>
+        </div>
+      </article>
+      {{ end }}
+    </div>
+  {{ end }}
+</div>
+
+{{/* 分页 */}}
+{{ if gt $paginator.TotalPages 1 }}
+<div class="pagination">
+  {{ if $paginator.HasPrev }}
+    <a href="{{ $paginator.Prev.URL }}" class="prev">←</a>
+  {{ end }}
+  
+  {{ range $paginator.Pagers }}
+    {{ if eq . $paginator }}
+      <span class="current">{{ .PageNumber }}</span>
+    {{ else if or (eq . ($paginator.First) ) (eq . ($paginator.Last)) }}
+      <a href="{{ .URL }}">{{ .PageNumber }}</a>
+    {{ else if and (ge .PageNumber (sub $paginator.PageNumber 2)) (le .PageNumber (add $paginator.PageNumber 2)) }}
+      <a href="{{ .URL }}">{{ .PageNumber }}</a>
+    {{ else if or (eq .PageNumber (sub $paginator.PageNumber 3)) (eq .PageNumber (add $paginator.PageNumber 3)) }}
+      <span class="ellipsis">...</span>
+    {{ end }}
+  {{ end }}
+  
+  {{ if $paginator.HasNext }}
+    <a href="{{ $paginator.Next.URL }}" class="next">→</a>
+  {{ end }}
+</div>
+{{ end }}
+
+{{/* 引入增强样式 */}}
+<link rel="stylesheet" href="/css/posts-enhanced.css">
+{{ end }}
