@@ -68,13 +68,13 @@ description: "探索 OpenClaw 小龙虾 AI 框架的无限可能"
 ## 🎯 热门分类
 
 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin: 2rem 0;">
-  <span class="tag" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">入门教程</span>
-  <span class="tag" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">实战开发</span>
-  <span class="tag" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">性能优化</span>
-  <span class="tag" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">安全</span>
-  <span class="tag" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">集成</span>
-  <span class="tag" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">架构设计</span>
-  <span class="tag" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333;">最佳实践</span>
+  <a href="/categories/技术教程/" class="tag" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; color: white; font-weight: 500;">入门教程</a>
+  <a href="/categories/实战开发/" class="tag" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; color: white; font-weight: 500;">实战开发</a>
+  <a href="/categories/性能优化/" class="tag" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; color: white; font-weight: 500;">性能优化</a>
+  <a href="/categories/security/" class="tag" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; color: white; font-weight: 500;">安全</a>
+  <a href="/categories/integration/" class="tag" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; color: white; font-weight: 500;">集成</a>
+  <a href="/categories/架构设计/" class="tag" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; color: white; font-weight: 500;">架构设计</a>
+  <a href="/categories/总结/" class="tag" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); text-decoration: none; display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; color: #333; font-weight: 500;">最佳实践</a>
 </div>
 
 ## 🚀 最新文章
