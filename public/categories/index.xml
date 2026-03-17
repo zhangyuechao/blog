@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on 我的博客</title>
+    <link>http://localhost:1313/categories/</link>
+    <description>Recent content in Categories on 我的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <managingEditor>your@email.com (作者名字)</managingEditor>
+    <webMaster>your@email.com (作者名字)</webMaster>
+    <copyright>© 2026 作者名字</copyright>
+    <lastBuildDate>Tue, 17 Mar 2026 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>随笔</title>
+      <link>http://localhost:1313/categories/%E9%9A%8F%E7%AC%94/</link>
+      <pubDate>Tue, 17 Mar 2026 10:00:00 +0800</pubDate>
+      <author>your@email.com (作者名字)</author>
+      <guid>http://localhost:1313/categories/%E9%9A%8F%E7%AC%94/</guid>
+      <description></description>
+      
+    </item>
+    
+  </channel>
+</rss>

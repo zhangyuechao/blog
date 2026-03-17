@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on 我的博客</title>
+    <link>http://localhost:1313/tags/</link>
+    <description>Recent content in Tags on 我的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <managingEditor>your@email.com (作者名字)</managingEditor>
+    <webMaster>your@email.com (作者名字)</webMaster>
+    <copyright>© 2026 作者名字</copyright>
+    <lastBuildDate>Tue, 17 Mar 2026 10:00:00 +0800</lastBuildDate><atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>博客</title>
+      <link>http://localhost:1313/tags/%E5%8D%9A%E5%AE%A2/</link>
+      <pubDate>Tue, 17 Mar 2026 10:00:00 +0800</pubDate>
+      <author>your@email.com (作者名字)</author>
+      <guid>http://localhost:1313/tags/%E5%8D%9A%E5%AE%A2/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>介绍</title>
+      <link>http://localhost:1313/tags/%E4%BB%8B%E7%BB%8D/</link>
+      <pubDate>Tue, 17 Mar 2026 10:00:00 +0800</pubDate>
+      <author>your@email.com (作者名字)</author>
+      <guid>http://localhost:1313/tags/%E4%BB%8B%E7%BB%8D/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>开始</title>
+      <link>http://localhost:1313/tags/%E5%BC%80%E5%A7%8B/</link>
+      <pubDate>Tue, 17 Mar 2026 10:00:00 +0800</pubDate>
+      <author>your@email.com (作者名字)</author>
+      <guid>http://localhost:1313/tags/%E5%BC%80%E5%A7%8B/</guid>
+      <description></description>
+      
+    </item>
+    
+  </channel>
+</rss>
